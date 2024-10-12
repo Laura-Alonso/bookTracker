@@ -1,68 +1,83 @@
 import requests
 import sqlite3
+import json
+import pandas as pd
 from datetime import datetime
-
-
+from tabulate import tabulate
+import json
 # Obtener datos de los libro
-def fetch_book_data(api_url, limit=None):
-    response = requests.get(api_url)
-    
-    if response.status_code == 200:
-        books_info = response.json()
-        books = []
+def download_data(db = "personal", tabla = "books", formato=None):
 
-        # Obtener los libros (todos o con límite)
-        items = books_info.get('items', [])
-        if limit is not None:
-            items = items[:limit]
+    # Create SQL conecction to our SQLite database
+    con = sqlite3.connect(f'./{db}.db')
+    formato = formato
+    df = pd.read_sql_query(f"SELECT * FROM {tabla}", con)
 
-        # Acceder a la información de cada libro
-        for book in items:
-            volume_info = book.get('volumeInfo', {})
-            identifiers = volume_info.get('industryIdentifiers', [])
-            image = volume_info.get('imageLinks', {})
+    if formato == "csv":
 
-            # Extraer la información
-            isbn = next((identifier['identifier'] for identifier in identifiers if identifier['type'] == 'ISBN_13'), 'N/A')
-            title = volume_info.get("title", "N/A")
-            authors = ', '.join(volume_info.get('authors', []))
-            description = volume_info.get('description', 'N/A')
-            published_date = volume_info.get('publishedDate', 'N/A')
-            page_count = volume_info.get('pageCount', 'N/A')
-            language = volume_info.get('language', 'N/A')
-            genders = ', '.join(volume_info.get('categories', []))
-            preview_link = volume_info.get('previewLink', 'N/A')
-            image_links = image.get('thumbnail', 'N/A')
+        try:
 
-            # Agregar los detalles a la lista de libros
-            books.append({
-                'isbn': isbn,
-                'title': title,
-                'authors': authors,
-                'description': description,
-                'published_date': published_date,
-                'page_count': page_count,
-                'language': language,
-                'genders': genders,
-                'preview_link': preview_link,
-                'image_links': image_links
-            })
-        
-        return books
-    else:
-        return f"Request error. Status code: {response.status_code}"
+            df.to_csv('database.csv', index=False, encoding='utf-8')
+            print("El archivo ha sido guardado correctamente.")
+
+        except PermissionError:
+            print("Error: Cierre el archivo en uso antes de descargar una nueva versión.")
+        except Exception as e:
+            print(f"Ha ocurrido un error: {e}")
+
+        finally:
+            # Cerramos la conexión con la bd
+            con.close()
+
+    if formato == "txt":
+
+        try:
+
+            df.to_csv('database.txt', index=False, encoding='utf-8')
+            print("El archivo ha sido guardado correctamente.")
+
+        except PermissionError:
+            print("Error: Cierre el archivo en uso antes de descargar una nueva versión.")
+        except Exception as e:
+            print(f"Ha ocurrido un error: {e}")
+
+        finally:
+            # Cerramos la conexión con la bd
+            con.close()
+
+    if formato == "csv":
+
+        try:
+
+            df.to_csv('database.csv', index=False, encoding='utf-8')
+            print("El archivo ha sido guardado correctamente.")
+
+        except PermissionError:
+            print("Error: Cierre el archivo en uso antes de descargar una nueva versión.")
+        except Exception as e:
+            print(f"Ha ocurrido un error: {e}")
+
+        finally:
+            # Cerramos la conexión con la bd
+            con.close()
+
+    if formato == "json":
+
+        try:
+
+            json_string = json.dumps(df.values.tolist(), ensure_ascii=False, indent=4)
+            with open('database.json', 'w', encoding='utf-8') as f:
+                f.write(json_string)
+
+        except PermissionError:
+            print("Error: Cierre el archivo en uso antes de descargar una nueva versión.")
+        except Exception as e:
+            print(f"Ha ocurrido un error: {e}")
+
+        finally:
+            # Cerramos la conexión con la bd
+            con.close()
+
+download_data(formato = "json")
 
 
-def fetch_book_data_author(author):
-
-    google_books_api_url = f"https://www.googleapis.com/books/v1/volumes?q=inauthor:{author}"
-    books = fetch_book_data(google_books_api_url, limit=30)
-    libros_filtrados = [book for book in books if author in book.get('authors', '')]
-    
-    return libros_filtrados
-
-    #return books
-
-
-#print(fetch_book_data("https://www.googleapis.com/books/v1/volumes?q=inauthor:Carmen%20Bravo-Villasante"))
-print(fetch_book_data_author("Carmen Bravo-Villasante"))

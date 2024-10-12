@@ -1,6 +1,10 @@
 import requests
 import sqlite3
 from datetime import datetime
+import pandas as pd
+from tabulate import tabulate
+import json
+
 
 # Set up the SQLite database
 def setup_database(db_name='personal.db'):
@@ -10,7 +14,7 @@ def setup_database(db_name='personal.db'):
     # Create a table to store book details   # Create SQL comand. Names are columns names.
     cursor.execute('''                        
         CREATE TABLE IF NOT EXISTS books (
-            isbn TEXT PRIMARY KEY,
+            isbn TEXT,
             title TEXT,
             authors TEXT,
             description TEXT,
@@ -103,9 +107,61 @@ def fetch_book_data_author(author):
     
     return libros_filtrados
 
+# Autores unicos
+def fetch_unique_author(author):
+    google_books_api_url = f"https://www.googleapis.com/books/v1/volumes?q=inauthor:{author}"
+    
+    autores = set()  # Usamos un conjunto para evitar duplicados automáticamente
+    start_index = 0  # Índice inicial para la paginación
+    max_results_per_page = 20  # Número máximo de resultados por solicitud (según la API)
 
+    while len(autores) < 10:
+        # Actualizar la URL para incluir el parámetro de paginación
+        paginated_url = f"{google_books_api_url}&startIndex={start_index}&maxResults={max_results_per_page}"
 
+        # Hacer la solicitud a la API y obtener los datos
+        response = requests.get(paginated_url)
 
+        # Verificar si la solicitud fue exitosa (código 200)
+        if response.status_code == 200:
+            # Convertir la respuesta JSON en un objeto Python
+            books_info = response.json()
+
+            # Extraer la lista de libros desde 'items'
+            books = books_info.get('items', [])
+
+            # Si no hay más libros, salir del bucle
+            if not books:
+                break
+
+            # Iterar sobre la lista de libros
+            for book in books:
+                volume_info = book.get('volumeInfo', {})
+
+                # Obtener la lista de autores, si está disponible
+                authors_list = volume_info.get('authors', [])
+
+                # Convertir la lista de autores en una cadena separada por comas
+                authors = ', '.join(authors_list)
+
+                # Añadir el autor si es nuevo (el conjunto ya elimina duplicados)
+                if authors and len(autores) < 10:
+                    autores.add(authors)
+
+                # Detener el bucle si ya tenemos 10 autores
+                if len(autores) == 10:
+                    break
+
+            # Aumentar el índice para la siguiente página
+            start_index += max_results_per_page
+        else:
+            print(f"Error en la solicitud: {response.status_code}")
+            return []
+
+    # Convertir los autores únicos en una lista de diccionarios
+    autores_dicts = [{'authors': author} for author in autores]
+
+    return autores_dicts  # Devolver la lista de autores únicos
 
 # Step 4. Insert other variables
 
@@ -202,6 +258,82 @@ def show_authors(books):
         print("No se encontraron libros.")
 
 
+# Previsualization of data base
+def shows_table_data(db = "personal", tabla = "books"):
+
+    # Create SQL conecction to our SQLite database
+    con = sqlite3.connect(f'./{db}.db')
+
+    df = pd.read_sql_query(f"SELECT isbn, title, authors,  published_date, page_count, formato, language, genders, read_date, rate, times_readed FROM {tabla}", con)
+
+    # Obtenemos los resultados
+    #print(df)
+    print(df.to_markdown())
+
+    # Cerramos la conexión con la bd
+    con.close()
+
+
+# Download data
+def download_data(db = "personal", tabla = "books", formato=None):
+
+    # Create SQL conecction to our SQLite database
+    con = sqlite3.connect(f'./{db}.db')
+    formato = formato
+    df = pd.read_sql_query(f"SELECT * FROM {tabla}", con)
+
+    if formato == "1":
+
+        try:
+
+            df.to_csv('database.csv', index=False, encoding='utf-8')
+            print("El archivo ha sido guardado correctamente.")
+
+        except PermissionError:
+            print("Error: Cierre el archivo en uso antes de descargar una nueva versión.")
+        except Exception as e:
+            print(f"Ha ocurrido un error: {e}")
+
+        finally:
+            # Cerramos la conexión con la bd
+            con.close()
+
+    if formato == "2":
+
+        try:
+
+            df.to_csv('database.txt', index=False, encoding='utf-8')
+            print("El archivo ha sido guardado correctamente.")
+
+        except PermissionError:
+            print("Error: Cierre el archivo en uso antes de descargar una nueva versión.")
+        except Exception as e:
+            print(f"Ha ocurrido un error: {e}")
+
+        finally:
+            # Cerramos la conexión con la bd
+            con.close()
+
+    if formato == "3":
+
+        try:
+
+            json_string = json.dumps(df.values.tolist(), ensure_ascii=False, indent=4)
+            with open('database.json', 'w', encoding='utf-8') as f:
+                f.write(json_string)
+
+        except PermissionError:
+            print("Error: Cierre el archivo en uso antes de descargar una nueva versión.")
+        except Exception as e:
+            print(f"Ha ocurrido un error: {e}")
+
+        finally:
+            # Cerramos la conexión con la bd
+            con.close()
+
+download_data(formato = "json")
+
+
         
 # Step 6: Main function to run the workflow
 def main():
@@ -271,9 +403,10 @@ def main():
             elif opcion_busqueda == '3':
                 author = input("Ingrese el nombre del autor: ")
                 books = fetch_book_data_author(author)
-                if isinstance(books, list) and books:
+                autores = fetch_unique_author(author)
+                if isinstance(autores, list) and autores:
                     print("Autores encontrados:")
-                    show_authors(books)
+                    show_authors(autores)
                     seleccion_author = int(input("Selecciona el autor sobre el que quieres obtener información: ")) -1
                     # Verificar si la selección está dentro del rango
                     if 0 <= seleccion_author < len(books):
@@ -308,23 +441,6 @@ def main():
                     else:
                         print("Selección inválida. Intente de nuevo.")
 
-
-                    ##if 0 <= seleccion < len(books):
-                    ##    # Ask user when they read the book
-                    ##    read_date = get_read_date()
-                    ##    # Rating the book
-                    ##    rate = get_rate()
-                    ##    # Number of times readed
-                    ##    times_readed = get_times_readed()
-                    ##    # Type of book
-                    ##    book_type = get_book_format()
-                    ##    
-                    ##    save_book_to_db(books[seleccion], read_date, rate, times_readed, book_type)
-                    ##else:
-                    ##    print("Selección inválida.")
-                #else:
-                #    print("No se encontraron libros con ese título.")
-
         elif opcion == '2':
             print("Funcionalidad no implementada aún.")
         
@@ -332,7 +448,20 @@ def main():
             print("Funcionalidad no implementada aún.")
         
         elif opcion == '4':
-            print("Funcionalidad no implementada aún.")
+            print("Elija una acción:")
+            print("1. Previsualizar la base de datos")
+            print("2. Descargar la base de datos")
+            opcion_busqueda = input("Ingrese una opción (1-2): ")
+
+            if opcion_busqueda == '1':
+                shows_table_data()
+            if opcion_busqueda == '2':
+                print("Elija un formato:")
+                print("1. csv")
+                print("2. txt")
+                print("3. json")
+                opcion_busqueda = input("Ingrese una opción (1-3): ")
+                download_data(formato = opcion_busqueda)
         
         elif opcion == '5':
             print("Saliendo del programa...")

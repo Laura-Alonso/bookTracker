@@ -10,13 +10,13 @@ def setup_database(db_name='personal.db'):
     # Create a table to store book details   # Create SQL comand. Names are columns names.
     cursor.execute('''                        
         CREATE TABLE IF NOT EXISTS books (
-            isbn TEXT PRIMARY KEY NOT NULL,
+            isbn TEXT PRIMARY KEY,
             title TEXT,
             authors TEXT,
             description TEXT,
             published_date DATE,
             page_count TEXT,
-            formate TEXT,
+            formato TEXT,
             language TEXT,
             genders TEXT,
             preview_link TEXT,
@@ -93,11 +93,16 @@ def fetch_book_data_title(title):
     google_books_api_url = f"https://www.googleapis.com/books/v1/volumes?q=intitle:{title}"
     return fetch_book_data(google_books_api_url, limit=5)
 
-# Fetch book data from Google Books API using Title
+# Fetch book data from Google Books API using Author
 
 def fetch_book_data_author(author):
+
     google_books_api_url = f"https://www.googleapis.com/books/v1/volumes?q=inauthor:{author}"
-    return fetch_book_data(google_books_api_url, limit=30)    
+    books = fetch_book_data(google_books_api_url, limit=30)
+    libros_filtrados = [book for book in books if author in book.get('authors', '')]
+    
+    return libros_filtrados
+
 
 # Step 4. Insert other variables
 
@@ -336,4 +341,5 @@ def main():
 
 
 if __name__ == "__main__":
+    setup_database()
     main()
