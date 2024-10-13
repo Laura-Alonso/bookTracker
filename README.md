@@ -39,6 +39,7 @@ Keep track of the books you've read, store general information such as ISBN, tit
 |book_exists(isbn, db_name='personal.db')                                            | Check if the book already exists in the database  | Yes              |
 |def ask_updates(isbn, db_name='personal.db')                                        | Ask to update an existing book                    | Yes              |
 |def show_table_data()                                                               | Show a previsualitation of the data base          | Yes              |
+|update_book()                                                                       | Update fields in database                         | Yes              |
 |def main()                                                                          | Main function to run the workflow                 | Yes              |
 |delete_using_db()                                                                   | Delete a book from the database                   | Yes              |
 
@@ -54,8 +55,19 @@ Keep track of the books you've read, store general information such as ISBN, tit
 |                                       | 2. Buscar por título           | 1. Elegir libro a añadir     | Yes          |
 |                                       | 3. Buscar por autor            |                              | Yes          |
 | 2. Eliminar un libro                  | 1. Seleccionar desde la BD     |                              | Yes          |
-| 3. Actualizar un libro                | 1. Seleccionar desde la BD     | 1. Elegir campo a actualizar | In progress  |
+| 3. Actualizar un libro                | 1. Seleccionar desde la BD     | 1. Elegir campo a actualizar | Yes          |
 | 4. Manejar libros en la base de datos | 1. Previsualizar               |                              | Yes          |
 |                                       | 2. Descargar archivo           | 1. csv                       | Yes          |
 |                                       |                                | 2. txt                       | Yes          |
 |                                       |                                | 3. json                      | Yes          |
+
+
+# Improvements
+- [ ] Redefinir el tipo de las columnas para la base de datos
+- [ ] Asegurarse de que en todo momento se mantiene la lógica del tipo de la columna, incluso cuando los datos vienen de la API
+- [ ] Cambiar el idioma a español para todo el programa
+- [ ] Definir mejor las funciones de manera que el main quede lo más limpio posible.
+- [ ] Tanto para las funciones como el main, revisar cómo esta hecho para ir a la pregunta antrior en vez de cerrar el programa.
+- [ ] Reemplazar o implementar cuando sea necesario las funciones de los errores.
+- [ ] Ver alguna manera para que el usuario pueda seleccionar el idioma de la aplicación al inicio y, en función del idioma, mostrar el lenguaje en una modalidad u otra.
+- [ ] Revisar el problema que hay con la función que trae los libros de la API usando el campo autores.

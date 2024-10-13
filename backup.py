@@ -334,7 +334,35 @@ def download_data(db = "personal", tabla = "books", formato=None):
             # Cerramos la conexión con la bd
             con.close()
 
+# Delete book
+def delete_using_db(db = "personal", tabla = "books", row=None, question = None):
 
+    # Create SQL conecction to our SQLite database
+    con = sqlite3.connect(f'./{db}.db')
+
+    df = pd.read_sql_query(f"SELECT rowid AS Id, isbn, title, authors, published_date, page_count, formato, language, genders, read_date, rate, times_readed FROM {tabla}", con)
+
+    # Obtenemos los resultados
+    print(df.to_markdown(index=False))
+
+    # Preguntar que libro quiere borrar
+    row = int(input("\nIntroduzca el Id (indetificador) del libro que quieres borrar: "))
+    selected_book = df[df['Id'] == row].to_markdown(index=False)
+    question = int(input(f"\n¿Estas seguro de que deseas borrar el siguiente libro?: \n\n{selected_book} \n\nSelecciona 1 si estás seguro o 2 si quieres mantenerlo: "))
+
+    # Elegir la fila a eliminar
+    con.execute("DELETE FROM books WHERE ROWID={}".format(int(row)))
+    if question == 1:
+        con.commit()
+        print("\nEl libro ha sido borrado\n")
+        df_new = pd.read_sql_query(f"SELECT rowid AS Id, isbn, title, authors, published_date, page_count, formato, language, genders, read_date, rate, times_readed FROM {tabla}", con)
+        print(f"\n {df_new.to_markdown(index=False)}\n")
+    elif question == 2:
+        print("El libro no ha sido borrado\n")    
+    else:
+        print("\nInvalid input. Please enter 1 for delete or 2 for not delete.\n")
+    # Cerramos la conexión con la bd
+    con.close()
 
         
 # Step 6: Main function to run the workflow
@@ -444,7 +472,7 @@ def main():
                         print("Selección inválida. Intente de nuevo.")
 
         elif opcion == '2':
-            print("Funcionalidad no implementada aún.")
+            delete_using_db()
         
         elif opcion == '3':
             print("Funcionalidad no implementada aún.")
