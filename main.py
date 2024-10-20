@@ -14,12 +14,12 @@ def setup_database(db_name='personal.db'):
     # Create a table to store book details   # Create SQL comand. Names are columns names.
     cursor.execute('''                        
         CREATE TABLE IF NOT EXISTS books (
-            isbn TEXT,
+            isbn INTEGER,
             title TEXT,
             authors TEXT,
             description TEXT,
             published_date DATE,
-            page_count TEXT,
+            page_count INTEGER,
             formato TEXT,
             language TEXT,
             genders TEXT,
@@ -67,16 +67,16 @@ def fetch_book_data(api_url, limit=None):
 
             # Agregar los detalles a la lista de libros
             books.append({
-                'isbn': isbn,
-                'title': title,
-                'authors': authors,
-                'description': description,
+                'isbn': check_isbn(isbn),
+                'title': check_string(title),
+                'authors': check_string(authors),
+                'description': check_string(description),
                 'published_date': published_date,
-                'page_count': page_count,
+                'page_count': check_integer(page_count),
                 'language': language,
-                'genders': genders,
-                'preview_link': preview_link,
-                'image_links': image_links
+                'genders': check_string(genders),
+                'preview_link': check_string(preview_link),
+                'image_links': check_string(image_links)
             })
         
         return books
@@ -87,6 +87,8 @@ def fetch_book_data(api_url, limit=None):
 # Fetch book data from Google Books API using ISBN
 
 def fetch_book_data_isbn(isbn):
+    if check_isbn(isbn) is None:
+        return print("El ISBN ingresado no es válido. No se realizará la búsqueda.")
     google_books_api_url = f"https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}"
     return fetch_book_data(google_books_api_url, limit=1)
     
@@ -94,13 +96,16 @@ def fetch_book_data_isbn(isbn):
 # Fetch book data from Google Books API using Title
 
 def fetch_book_data_title(title):
+    if check_string(title) is None:
+        return print("El título ingresado no es válido. No se realizará la búsqueda.")
     google_books_api_url = f"https://www.googleapis.com/books/v1/volumes?q=intitle:{title}"
     return fetch_book_data(google_books_api_url, limit=5)
 
 # Fetch book data from Google Books API using Author
 
 def fetch_book_data_author(author):
-
+    if check_string(author) is None:
+        return print("El autor/es ingresado no es válido. No se realizará la búsqueda.")
     google_books_api_url = f"https://www.googleapis.com/books/v1/volumes?q=inauthor:{author}"
     books = fetch_book_data(google_books_api_url, limit=30)
     libros_filtrados = [book for book in books if author in book.get('authors', '')]
@@ -191,14 +196,11 @@ def get_rate():
 
 def get_times_readed():
     while True:
-        times_readed = input("How many times have you read the book? (or leave empty): ")
-        if times_readed == '':
-            return None
         try:
-            if times_readed.isdigit():
-                return int(times_readed)
+            times_readed = input("How many times have you read the book? (or leave empty): ")
+            return check_integer(times_readed)
         except ValueError:
-            print("Invalid input. Please enter a number or leave empty.")
+            break
 
 def get_book_format():
     while True:
@@ -399,54 +401,51 @@ def update_book(db = "personal", tabla = "books", row=None, question = None):
     # ISBN
     if question == 1:
         while True:
-            try:
-                new_val = int(input(f"\nIntroduzca el nuevo ISBN (solo números): \n\n"))
-                if type(new_val) == int:
-                    con.execute("UPDATE books SET ISBN = ? WHERE ROWID= ?", (new_val, int(row)))
-                    con.commit()
-                    print(f"El ISBN ha sido actualizado a: {new_val}")
-                    break
-            except ValueError:
+            new_val = input(f"\nIntroduzca el nuevo ISBN (solo números): \n\n")
+            if check_isbn(new_val) is None:
                 print("\nInvalid input. Por favor, introduzca solo números sin espacios ni guiones.\n")
+            else:
+                con.execute("UPDATE books SET ISBN = ? WHERE ROWID= ?", (new_val, int(row)))
+                con.commit()
+                print(f"El ISBN ha sido actualizado a: {new_val}")
                 break
 
     # TÍTULO
     elif question == 2:
        while True:
            new_val = str(input(f"\nIntroduzca el nuevo título: \n\n"))
-           if type(new_val) == str:
+           if check_string(new_val) is None:
+               print("\nInvalid input. Por favor, introduzca una cadena de texto.\n")
+           else:
                con.execute("UPDATE books SET title = ? WHERE ROWID= ?", (new_val, int(row)))
                con.commit()
                print(f"El título ha sido actualizado a: {new_val}")
                break
-           else:
-               print("\nInvalid input. Por favor, inténtelo de nuevo.\n")
-               break   
+
 
     # AUTORES
     elif question == 3:
        while True:
            new_val = str(input(f"\nIntroduzca el nuevo autor. \nSi hay más de un autor, sepárelos por comas (Luis Rojas, Eloy Moreno).\nTenga en cuenta que todos los autores anteriores se perderan. \nNuevo/s autor/es: \n"))
-           if type(new_val) == str:
+           if check_string(new_val) is None:
+               print("\nInvalid input. Por favor, introduzca una cadena de texto.\n")
+           else:
                con.execute("UPDATE books SET authors = ? WHERE ROWID= ?", (new_val, int(row)))
                con.commit()
                print(f"El campo autores ha sido actualizado a: {new_val}")
                break
-           else:
-               print("\nInvalid input. Por favor, inténtelo de nuevo.\n") 
-               break
+
 
     # DESCRIPCIÓN
     elif question == 4:
        while True:
            new_val = str(input(f"\nIntroduzca una descripción sobre el libro. \nTenga en cuenta que la descripción antrior se perdera. \nDescripción: \n"))
-           if type(new_val) == str:
+           if check_string(new_val) is None:
+               print("\nInvalid input. Por favor, introduzca una cadena de texto.\n")
+           else:
                con.execute("UPDATE books SET description = ? WHERE ROWID= ?", (new_val, int(row)))
                con.commit()
                print(f"La descripción ha sido actualizada: {new_val}")
-               break
-           else:
-               print("\nInvalid input. Por favor, inténtelo de nuevo.\n") 
                break
 
     # FECHA DE PUBLICACIÓN
@@ -466,14 +465,14 @@ def update_book(db = "personal", tabla = "books", row=None, question = None):
     # NÚMERO DE PÁGINAS
     elif question == 6:
        while True:
-           new_val = int(input(f"\nIntroduzca el númreo de páginas: \n"))
-           if type(new_val) == int:
+           new_val = input(f"\nIntroduzca el númereo de páginas: \n")
+           new_value = check_integer(new_val)
+           if new_val is None:
+               print("\nInvalid input. Por favor, introduzca uun número válido.\n")
+           else:   
                con.execute("UPDATE books SET page_count = ? WHERE ROWID= ?", (new_val, int(row)))
                con.commit()
                print(f"El número de páginas ha sido actualizado: {new_val}")
-               break
-           else:
-               print("\nInvalid input. Por favor, inténtelo de nuevo.\n")
                break
     
     # FORMATO
@@ -521,14 +520,14 @@ def update_book(db = "personal", tabla = "books", row=None, question = None):
     elif question == 9:
        while True:
            new_val = str(input(f"\nIntroduzca el género del libro. \nSi hay más de un género, sepárelos por comas (Ficción, Romance).\nTenga en cuenta que los géneros anteriores se perderan. \nNuevo/s género/s: \n"))
-           if type(new_val) == str:
+           if check_string(new_val) is None:
+               print("\nInvalid input. Por favor, introduzca una cadena de texto.\n")
+           else:
                con.execute("UPDATE books SET genders = ? WHERE ROWID= ?", (new_val, int(row)))
                con.commit()
                print(f"El campo género del libro ha sido actualizado a: {new_val}")
                break
-           else:
-               print("\nInvalid input. Por favor, inténtelo de nuevo.\n")
-               break               
+                         
 
     # FECHA DE LECTURA
     elif question == 10:
@@ -560,19 +559,78 @@ def update_book(db = "personal", tabla = "books", row=None, question = None):
     # NÚMERO DE VECES LEIDO
     elif question == 12:
        while True:
-           new_val = int(input(f"\nIntroduzca el número de veces que ha leido el libro (valores enteros): \n"))
-           if type(new_val) == int:
+           new_val = input(f"\nIntroduzca el número de veces que ha leido el libro (valores enteros): \n")
+           new_value = check_integer(new_val)
+           if new_value is None:
+               print("\nInvalid input. Por favor, inténtelo de nuevo. Recuerde introducir un número entero\n")
+           else:    
                con.execute("UPDATE books SET times_readed = ? WHERE ROWID= ?", (new_val, int(row)))
                con.commit()
                print(f"El campo número de veces que ha leido el libro ha sido actualizado: {new_val}")
-               break
-           else:
-               print("\nInvalid input. Por favor, inténtelo de nuevo. Recuerde introducir un número entero\n")
                break
            
     # Cerramos la conexión con la bd
     con.close() 
 
+
+
+### CHEQUEOS FORMATO
+
+# Isbn
+def check_isbn(col = None):
+     while True:
+        if col == '' or col is None:
+            return None  # Permite un valor nulo
+        try:
+            col = int(col)
+            if len(str(col)) == 13:    
+                return col
+            else:
+                 print("El ISBN debe ser un número de 13 dígitos.")
+                 break                 
+        except ValueError:
+            print("El ISBN debe ser un número de 13 dígitos.")
+            break
+
+# String (title, authors, description, gender, preview_link, image_lin)
+def check_string(col = None):
+    while True:
+        if col == "" or col is None:
+            return None
+        try:
+            col = str(col)
+            return col
+        except ValueError:
+            print("Debe ser una cadena de texto")
+            break
+
+# Integer (page_count, times_readed)
+def check_integer(col = None):
+    while True:
+        if col == '' or col is None:
+           return None  # Permite un valor nulo 
+        try:
+            col = int(col)
+            return col
+        except ValueError:
+            print("Solo se permite introducir números")
+            col = input("Por favor, introduzca un número: ")
+
+# Format
+def check_format(col = None):
+    while True:
+        if col == '' or col is None:
+            return None  # Permite un valor nulo
+        try:
+            col = int(col)
+            if col in (1,2):    
+                return col
+            else:
+                 print("Introduzca 1 para Papel, 2 para Ebook.")
+                 break                 
+        except ValueError:
+            print("Introduzca 1 para Papel, 2 para Ebook.")
+            break         
 
 
 # Step 6: Main function to run the workflow
@@ -595,6 +653,8 @@ def main():
 
             if opcion_busqueda == '1':
                 isbn = input("Ingrese el ISBN del libro: ")
+                if fetch_book_data_isbn(isbn) is None:
+                    break
                 books = fetch_book_data_isbn(isbn)
                 if isinstance(books, list) and books:
                     print("Libro encontrado:")
@@ -618,6 +678,8 @@ def main():
 
             elif opcion_busqueda == '2':
                 title = input("Ingrese el título del libro: ")
+                if fetch_book_data_title(title) is None:
+                    break
                 books = fetch_book_data_title(title)
                 if isinstance(books, list) and books:
                     print("Libros encontrados:")
@@ -642,6 +704,8 @@ def main():
             
             elif opcion_busqueda == '3':
                 author = input("Ingrese el nombre del autor: ")
+                if fetch_book_data_title(author) is None:
+                    break
                 books = fetch_book_data_author(author)
                 autores = fetch_unique_author(author)
                 if isinstance(autores, list) and autores:

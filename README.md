@@ -3,22 +3,22 @@ Keep track of the books you've read, store general information such as ISBN, tit
 
 # Fields
 
-|Column         | Origin     |  Path API                             | Type    |
-|---------------|------------|---------------------------------------|---------|
-|isbn           | Input, API |                                       | INT     |
-|title          | Input, API |                                       | STRING  |
-|authors        | Input, API |                                       | STRING  |
-|description    | API        | items.description                     | STRING  |
-|published_date | API        |                                       | DATE    |
-|page_count     | API        | items.volumeInfo.pageCount            | INT     |
-|formato        | Input      |                                       | STRING  |
-|languaje       | API        | items.volumeInfo.language             | STRING  |
-|genders        | API        | items.volumeInfo.categories           | STRING  |
-|image_links    | API        | items.volumeInfo.imageLinks.thumbnail | STRING  |
-|preview_link   | API        | items.volumeInfo.previewLink          | STRING  |
-|read_date      | Input      |                                       | DATE    |
-|rate           | Input      |                                       | INT     |
-|times_readed   | Input      |                                       | INT     |
+|Column         | Origin     |  Path API                             | Type    | Especific format  | Checked?  | 
+|---------------|------------|---------------------------------------|---------|-------------------|-----------|
+|isbn           | Input, API |                                       | INT     | lenght 13         |    [X]    |
+|title          | Input, API |                                       | STRING  |                   |    [X]    |
+|authors        | Input, API |                                       | STRING  |                   |    [X]    |
+|description    | API        | items.description                     | STRING  |                   |    [X]    |
+|published_date | API        |                                       | DATE    |                   |    []     |
+|page_count     | API        | items.volumeInfo.pageCount            | INT     |                   |    [X]    |
+|formato        | Input      |                                       | STRING  | 1. Papel 2. Ebook |    []     |
+|languaje       | API        | items.volumeInfo.language             | STRING  |                   |    []     |
+|genders        | API        | items.volumeInfo.categories           | STRING  |                   |    [X]    |
+|image_links    | API        | items.volumeInfo.imageLinks.thumbnail | STRING  |                   |    [X]    |
+|preview_link   | API        | items.volumeInfo.previewLink          | STRING  |                   |    [X]    |
+|read_date      | Input      |                                       | DATE    |                   |    []     |
+|rate           | Input      |                                       | INT     |                   |    []     |
+|times_readed   | Input      |                                       | INT     |                   |    [X]    |
 
 
 # Functions
@@ -42,7 +42,9 @@ Keep track of the books you've read, store general information such as ISBN, tit
 |update_book()                                                                       | Update fields in database                         | Yes              |
 |def main()                                                                          | Main function to run the workflow                 | Yes              |
 |delete_using_db()                                                                   | Delete a book from the database                   | Yes              |
-
+|check_isbn()                                                                        | Check if isbn format is correct                   | Yes              |
+|check_string()                                                                      | Check if format is correct when string input      | Yes              |
+|check_integer()                                                                     | Check if format is correct when integer input     | Yes              |
 
 
 
