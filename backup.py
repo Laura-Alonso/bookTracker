@@ -73,7 +73,7 @@ def fetch_book_data(api_url, limit=None):
                 'description': check_string(description),
                 'published_date': published_date,
                 'page_count': check_integer(page_count),
-                'language': language,
+                'language': check_string(language),
                 'genders': check_string(genders),
                 'preview_link': check_string(preview_link),
                 'image_links': check_string(image_links)
@@ -206,14 +206,14 @@ def get_book_format():
     while True:
         print("Is the book in paper (1) or ebook (2)?")
         book_type = input("Enter 1 for paper, 2 for ebook: ")
-        if book_type == '':
-            return None
-        elif book_type == '1':
-            return 'Paper'  # Paper book
-        elif book_type == '2':
-            return 'Ebook'  # Ebook
+        value = check_format(book_type)
+        
+        if value == 1:
+            return 'Paper'  # Retorna 'Paper' si la entrada es válida
+        elif value == 2:
+            return 'Ebook'  # Retorna 'Ebook' si la entrada es válida
         else:
-            print("Invalid input. Please enter 1 for paper or 2 for ebook.")
+            print("Entrada no válida. Por favor, introduzca 1 para Papel o 2 para Ebook.")  # Si no es válido, vuelve a pedir
 
 # Show books found via API
 
@@ -478,21 +478,23 @@ def update_book(db = "personal", tabla = "books", row=None, question = None):
     # FORMATO
     elif question == 7:
        while True:
-         new_val = int(input(f"\nIntroduzca el formato del libro. Introduzca 1 para formato papel, 2 para formato ebook: \n"))
-         if type(new_val) == int and new_val == 1:
+         new_val = input(f"\nIntroduzca el formato del libro. Introduzca 1 para formato papel, 2 para formato ebook: \n")
+         new_value = check_format(new_val)
+         if new_value is None:
+             print("\nInvalid input. or favor, introduzca 1 para formato papel, 2 para formato ebook, o 'q' para salir.\n")
+             break
+         elif new_value == 1: 
              con.execute("UPDATE books SET formato = ? WHERE ROWID= ?", ("Paper", int(row)))
              con.commit()
              print(f"El libro ha sido actualizado a formato papel")
              break
-         elif type(new_val) == int and new_val == 2:
+         elif new_value == 2:
              con.execute("UPDATE books SET formato = ? WHERE ROWID= ?", ("Ebook", int(row)))
              con.commit()
              print(f"El libro ha sido actualizado a formato ebook")
-             break   
+             break  
          else:
-          # Entrada inválida si el valor no es ni 1 ni 2
-          print("\nEntrada inválida. Por favor, introduzca 1 para formato papel, 2 para formato ebook, o 'q' para salir.\n")    
-          break    
+             break  
            
     # IDIOMA
     elif question == 8:
@@ -616,7 +618,20 @@ def check_integer(col = None):
             print("Solo se permite introducir números")
             col = input("Por favor, introduzca un número: ")
 
-      
+# Format
+def check_format(col = None):
+    while True:
+        if col == '' or col is None:
+            return None  # Permite un valor nulo
+        try:
+            col = int(col)
+            if col in (1,2):    
+                return col 
+            else:
+                break            
+        except ValueError:
+            print("Debe ser un número 1 o 2")
+            col = input("Por favor, introduzca un número: ")   
 
 
 # Step 6: Main function to run the workflow

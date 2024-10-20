@@ -6,19 +6,14 @@ from tabulate import tabulate
 import json
 import numpy as np
 
-def check_format(col = None):
-    while True:
-        if col == '' or col is None:
-            return None  # Permite un valor nulo
-        try:
-            col = int(col)
-            if col in (1,2):    
-                return col
-            else:
-                 print("Introduzca 1 para Papel, 2 para Ebook.")
-                 break                 
-        except ValueError:
-            print("Introduzca 1 para Papel, 2 para Ebook.")
-            break     
+def check_date(col=None):
+    # Solo valida el formato; no pide más entradas
+    if col == '' or col is None:
+        return None  # Permite un valor nulo
+    try:
+        col = datetime.strptime(col, '%d-%m-%Y').date()
+        return col
+    except ValueError:
+        return None  # Devuelve None si no es un número
 
-check_format(3)
+check_date()
