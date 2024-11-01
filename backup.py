@@ -71,7 +71,7 @@ def fetch_book_data(api_url, limit=None):
                 'title': check_string(title),
                 'authors': check_string(authors),
                 'description': check_string(description),
-                'published_date': published_date,
+                'published_date': check_date(published_date),
                 'page_count': check_integer(page_count),
                 'language': check_string(language),
                 'genders': check_string(genders),
@@ -451,15 +451,15 @@ def update_book(db = "personal", tabla = "books", row=None, question = None):
     # FECHA DE PUBLICACIÓN
     elif question == 5:
        while True:
-           new_val = str(input(f"\nIntroduzca la nueva fecha de publicación (Formato YYYY-MM-DD. Si no sabe el año, el mes o el día sustituye con unos): \n"))
-           try:
-               datetime.strptime(new_val, "%Y-%m-%d")
-               con.execute("UPDATE books SET published_date = ? WHERE ROWID= ?", (new_val, int(row)))
+           new_val = str(input(f"\nIntroduzca la nueva fecha de publicación (Formato YYYY-MM-DD. Si no sabe el año, el mes o el día sustituye con '01'): \n"))
+           new_val2 = str(check_date(new_val))
+           if check_date(new_val2) is None:
+               print("\nInvalid input. Por favor, inténtelo de nuevo. Recuerde usar el formato YYYY-MM-DD.Si no sabe el año, el mes o el día sustituye con '01'\n")
+           
+           else:
+               con.execute("UPDATE books SET published_date = ? WHERE ROWID= ?", (new_val2, int(row)))
                con.commit()
-               print(f"La fecha de publicación ha sido actualizada: {new_val}")
-               break
-           except ValueError:
-               print("\nInvalid input. Por favor, inténtelo de nuevo. Recuerde usar el formato YYYY-MM-DD.Si no sabe el año, el mes o el día sustituye con unos\n")
+               print(f"La fecha de publicación ha sido actualizada: {new_val2}")
                break
 
     # NÚMERO DE PÁGINAS
@@ -534,15 +534,14 @@ def update_book(db = "personal", tabla = "books", row=None, question = None):
     # FECHA DE LECTURA
     elif question == 10:
        while True:
-           new_val = str(input(f"\nIntroduzca la fecha de lectura (Formato YYYY-MM-DD. Si no sabe el año, el mes o el día sustituye con unos): \n"))
-           try:
-               datetime.strptime(new_val, "%Y-%m-%d")
+           new_val = str(input(f"\nIntroduzca la fecha de lectura (Formato YYYY-MM-DD. Si no sabe el año, el mes o el día sustituye con '01'): \n"))
+           new_val2 = str(check_date(new_val))
+           if check_date(new_val2) is None:
+               print("\nInvalid input. Por favor, inténtelo de nuevo. Recuerde usar el formato YYYY-MM-DD.Si no sabe el año, el mes o el día sustituye con '01'\n")
+           else:
                con.execute("UPDATE books SET read_date = ? WHERE ROWID= ?", (new_val, int(row)))
                con.commit()
                print(f"La fecha de lectura ha sido actualizada: {new_val}")
-               break
-           except ValueError:
-               print("\nInvalid input. Por favor, inténtelo de nuevo. Recuerde usar el formato YYYY-MM-DD.Si no sabe el año, el mes o el día sustituye con unos\n")
                break
 
     # PUNTUACIÓN
@@ -633,6 +632,21 @@ def check_format(col = None):
             print("Debe ser un número 1 o 2")
             col = input("Por favor, introduzca un número: ")   
 
+# Date
+def check_date(col=None):
+    # Solo valida el formato; no pide más entradas
+    if col == '' or col is None:
+        return None  # Permite un valor nulo
+    elif len(col) == 4:
+        col2 = f"{col}-01-01"
+    else:
+        col2 = col
+    try:
+        col2 = datetime.strptime(col2, '%Y-%m-%d').date()
+        return col2
+    except ValueError:
+        return None  # Devuelve None si no es un número
+    
 
 # Step 6: Main function to run the workflow
 def main():

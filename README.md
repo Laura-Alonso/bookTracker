@@ -9,14 +9,14 @@ Keep track of the books you've read, store general information such as ISBN, tit
 |title          | Input, API |                                       | STRING  |                   |    [X]    |
 |authors        | Input, API |                                       | STRING  |                   |    [X]    |
 |description    | API        | items.description                     | STRING  |                   |    [X]    |
-|published_date | API        |                                       | DATE    |                   |    []     |
+|published_date | API        |                                       | DATE    |                   |    [X]     |
 |page_count     | API        | items.volumeInfo.pageCount            | INT     |                   |    [X]    |
 |formato        | Input      |                                       | STRING  | 1. Papel 2. Ebook |    [X]    |
 |languaje       | API        | items.volumeInfo.language             | STRING  |                   |    []     |
 |genders        | API        | items.volumeInfo.categories           | STRING  |                   |    [X]    |
 |image_links    | API        | items.volumeInfo.imageLinks.thumbnail | STRING  |                   |    [X]    |
 |preview_link   | API        | items.volumeInfo.previewLink          | STRING  |                   |    [X]    |
-|read_date      | Input      |                                       | DATE    |                   |    []     |
+|read_date      | Input      |                                       | DATE    |                   |    [X]     |
 |rate           | Input      |                                       | INT     |                   |    []     |
 |times_readed   | Input      |                                       | INT     |                   |    [X]    |
 
