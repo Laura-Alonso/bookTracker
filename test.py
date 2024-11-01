@@ -7,20 +7,25 @@ import json
 import numpy as np
 
 
+def check_rate():
+    while True:
+        col = input("Rate the book (0-5 or leave empty): ")
+        
+        # Allow empty input to return None
+        if col == '' or col is None:
+            return None
+        
+        try:
+            col = int(col)
+            # Check if the number is within the valid range
+            if col in (0, 1, 2, 3, 4, 5):
+                return col  # Return valid rating
+            else:
+                print("Error: Enter a number between 0 and 5.")
+        except ValueError:
+            print("Error: Invalid input. Enter a number between 0 and 5.")
 
-# Date
-def check_date(col=None):
-    # Solo valida el formato; no pide más entradas
-    if col == '' or col is None:
-        return None  # Permite un valor nulo
-    elif len(col) == 4:
-        col2 = f"{col}-01-01"
-    else:
-        col2 = col
-    try:
-        col2 = datetime.strptime(col2, '%Y-%m-%d').date()
-        return col2
-    except ValueError:
-        return None  # Devuelve None si no es un número
-    
-print(check_date("2024"))
+        
+
+# Testing the function
+print(check_rate())

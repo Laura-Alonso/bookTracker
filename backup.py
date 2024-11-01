@@ -173,26 +173,24 @@ def fetch_unique_author(author):
 def get_read_date():
     while True:
         read_date = input("When did you read the book for the first time? (YYYY-MM-DD or leave empty): ")
-        if read_date == '':
-            return None  # Permite un valor nulo si no se proporciona una fecha
         try:
-            # Validar el formato de la fecha
-            datetime.strptime(read_date, '%Y-%m-%d')
-            return read_date
+            return check_date(read_date)
         except ValueError:
             print("Invalid date format. Please enter the date in YYYY-MM-DD format or leave empty.")
 
 def get_rate():
     while True:
-        rate = input("Rate the book (0-5 or leave empty): ")
-        if rate == '':
-            return None  # Permite un valor nulo si no se proporciona una fecha
         try:
-            # Validar el formato de la fecha
-            if rate.isdigit() and 0 <= int(rate) <= 5:
-                return int(rate)
+            rate = input("Rate the book (1-5 or leave empty): ")
+            if check_rate(rate) == "Wrong input":
+                print("\nInvalid input. Por favor, inténtelo de nuevo. Recuerde introducir un número entero del 1 al 5\n")
+                continue
+            else:
+                return check_rate(rate)
         except ValueError:
-            print("Invalid rating. Please enter a number between 0 and 5 or leave empty.")
+            break
+
+
 
 def get_times_readed():
     while True:
@@ -270,7 +268,7 @@ def shows_table_data(db = "personal", tabla = "books"):
 
     # Obtenemos los resultados
     #print(df)
-    print(df.to_markdown(index = False))
+    print(df.to_markdown(index = False, floatfmt=".0f"))
 
     # Cerramos la conexión con la bd
     con.close()
@@ -376,11 +374,10 @@ def update_book(db = "personal", tabla = "books", row=None, question = None):
     df = pd.read_sql_query(f"SELECT rowid AS Id, isbn, title, authors, published_date, page_count, formato, language, genders, read_date, rate, times_readed FROM {tabla}", con)
 
     # Obtenemos los resultados
-    print(df.to_markdown(index=False))
+    print(df.to_markdown(index=False,  floatfmt=".0f"))
 
     # Preguntar que libro quiere actualizar
     row = int(input("\nIntroduzca el Id (indetificador) del libro que quieres actualizar: "))
-    selected_book = df[df['Id'] == row].to_markdown(index=False)
     campos = {
         "Opción 1": "Isbn",
         "Opción 2": "Título",
@@ -538,24 +535,33 @@ def update_book(db = "personal", tabla = "books", row=None, question = None):
            new_val2 = str(check_date(new_val))
            if check_date(new_val2) is None:
                print("\nInvalid input. Por favor, inténtelo de nuevo. Recuerde usar el formato YYYY-MM-DD.Si no sabe el año, el mes o el día sustituye con '01'\n")
+           
            else:
-               con.execute("UPDATE books SET read_date = ? WHERE ROWID= ?", (new_val, int(row)))
+               con.execute("UPDATE books SET read_date = ? WHERE ROWID= ?", (new_val2, int(row)))
                con.commit()
-               print(f"La fecha de lectura ha sido actualizada: {new_val}")
+               print(f"La fecha de lectura ha sido actualizada: {new_val2}")
                break
+         
+
 
     # PUNTUACIÓN
     elif question == 11:
        while True:
-           new_val = int(input(f"\nIntroduzca la puntuación que quiere asignar al libro (valores enteros del 0 al 5): \n"))
-           if type(new_val) == int and new_val in [0,1,2,3,4,5]:
-               con.execute("UPDATE books SET rate = ? WHERE ROWID= ?", (new_val, int(row)))
-               con.commit()
-               print(f"El puntuación del libro ha sido actualizado: {new_val}")
-               break
-           else:
-               print("\nInvalid input. Por favor, inténtelo de nuevo. Recuerde introducir un número entero del 0 al 5\n")
-               break
+           try:
+            new_val = input(f"\nIntroduzca la puntuación que quiere asignar al libro (valores enteros del 1 al 5). Deje en blanco para ningún valor: \n")
+            new_val2 = check_rate(new_val)
+            if new_val2 == "Wrong input":
+                print("\nInvalid input. Por favor, inténtelo de nuevo. Recuerde introducir un número entero del 1 al 5\n")
+                continue
+            else:
+                con.execute("UPDATE books SET rate = ? WHERE ROWID= ?", (new_val2, int(row)))
+                con.commit()
+                print(f"El puntuación del libro ha sido actualizado: {new_val2}")
+                break
+            
+           except ValueError:
+                print("\nInvalid input. Por favor, inténtelo de nuevo. Recuerde introducir un número entero del 1 al 5\n")
+                break
 
     # NÚMERO DE VECES LEIDO
     elif question == 12:
@@ -647,6 +653,21 @@ def check_date(col=None):
     except ValueError:
         return None  # Devuelve None si no es un número
     
+def check_rate(col=None):
+    if col == '' or col is None:
+        return None
+    try:
+        col = int(col)
+        if col in (1, 2, 3, 4, 5):
+            return col  # Return valid rating
+        else:
+            col = "Wrong input"
+            return col
+    except ValueError:
+        return None
+            
+
+
 
 # Step 6: Main function to run the workflow
 def main():

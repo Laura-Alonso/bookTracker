@@ -9,15 +9,15 @@ Keep track of the books you've read, store general information such as ISBN, tit
 |title          | Input, API |                                       | STRING  |                   |    [X]    |
 |authors        | Input, API |                                       | STRING  |                   |    [X]    |
 |description    | API        | items.description                     | STRING  |                   |    [X]    |
-|published_date | API        |                                       | DATE    |                   |    [X]     |
+|published_date | API        |                                       | DATE    |                   |    [X]    |
 |page_count     | API        | items.volumeInfo.pageCount            | INT     |                   |    [X]    |
 |formato        | Input      |                                       | STRING  | 1. Papel 2. Ebook |    [X]    |
-|languaje       | API        | items.volumeInfo.language             | STRING  |                   |    []     |
+|languaje       | API        | items.volumeInfo.language             | STRING  |                   |    [X]     |
 |genders        | API        | items.volumeInfo.categories           | STRING  |                   |    [X]    |
 |image_links    | API        | items.volumeInfo.imageLinks.thumbnail | STRING  |                   |    [X]    |
 |preview_link   | API        | items.volumeInfo.previewLink          | STRING  |                   |    [X]    |
-|read_date      | Input      |                                       | DATE    |                   |    [X]     |
-|rate           | Input      |                                       | INT     |                   |    []     |
+|read_date      | Input      |                                       | DATE    |                   |    [X]    |
+|rate           | Input      |                                       | INT     |                   |    [X]    |
 |times_readed   | Input      |                                       | INT     |                   |    [X]    |
 
 
@@ -46,8 +46,8 @@ Keep track of the books you've read, store general information such as ISBN, tit
 |check_string()                                                                      | Check if format is correct when string input      | Yes              |
 |check_integer()                                                                     | Check if format is correct when integer input     | Yes              |
 |check_format()                                                                      | Check if format format is correct                 | Yes              |
-
-
+|check_date()                                                                        | Check if date format is correct                   | Yes              |
+|check_rate()                                                                        | Check if rate format is correct                   | Yes              |
 
 # Funcionalities
 
