@@ -9,6 +9,7 @@ from utils.check import *
 from utils.fetch_book import * 
 from utils.update import *
 from utils.get_information import *
+from utils.principal_functions import *
 
 
 # Set up the SQLite database
@@ -201,10 +202,7 @@ def delete_using_db(db = "personal", tabla = "books", row=None, question = None)
 
 
 
-### CHEQUEOS FORMATO
-
-
-            
+           
 
 
 

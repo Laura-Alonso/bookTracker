@@ -36,13 +36,16 @@ def get_times_readed():
 
 def get_book_format():
     while True:
-        print("Is the book in paper (1) or ebook (2)?")
-        book_type = input("Enter 1 for paper, 2 for ebook: ")
-        value = check_format(book_type)
-        
-        if value == 1:
-            return 'Paper'  # Retorna 'Paper' si la entrada es válida
-        elif value == 2:
-            return 'Ebook'  # Retorna 'Ebook' si la entrada es válida
-        else:
-            print("Entrada no válida. Por favor, introduzca 1 para Papel o 2 para Ebook.")  # Si no es válido, vuelve a pedir
+        book_type = input("¿El libro es en formato papel (1) o e-book (2). Pulse 'enter' para dejar vacío.")
+        try:
+            if check_format(book_type) == "Wrong input":
+                print("\nHas introducido un valor no permitido. Por favor, inténtelo de nuevo. \nRecuerde introducir 1 para formato papel, 2 para formato e-book")
+                continue
+            elif check_format(book_type) == 1:
+                return 'Papel' 
+            elif check_format(book_type) == 2:
+                return 'E-book' 
+            else:
+                return None 
+        except ValueError:
+            break

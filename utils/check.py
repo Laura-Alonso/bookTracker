@@ -50,20 +50,19 @@ def check_integer(col = None):
     except ValueError:
         return "Wrong input" 
 
+
 # Format
 def check_format(col = None):
-    while True:
-        if col == '' or col is None:
-            return None  # Permite un valor nulo
-        try:
-            col = int(col)
-            if col in (1,2):    
-                return col 
-            else:
-                break            
-        except ValueError:
-            print("Debe ser un número 1 o 2")
-            col = input("Por favor, introduzca un número: ")   
+    if col == '' or col is None:
+        return None  # Permite un valor nulo
+    try:
+        col = int(col)
+        if col in (1,2):    
+           return col 
+        else:
+            return "Wrong input"            
+    except ValueError:
+        return "Wrong input" 
 
  
 
