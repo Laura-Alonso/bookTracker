@@ -5,6 +5,8 @@ import pandas as pd
 from tabulate import tabulate
 import json
 import numpy as np
+from utils.check import * 
+
 
 # Set up the SQLite database
 def setup_database(db_name='personal.db'):
@@ -180,10 +182,10 @@ def get_read_date():
 
 def get_rate():
     while True:
+        rate = input("Puntue el libro del 1 al 5 (pulse enter para dejar vacío): ")
         try:
-            rate = input("Rate the book (1-5 or leave empty): ")
             if check_rate(rate) == "Wrong input":
-                print("\nInvalid input. Por favor, inténtelo de nuevo. Recuerde introducir un número entero del 1 al 5\n")
+                print("\nHas introducido un valor no permitido. Por favor, inténtelo de nuevo. \nRecuerde introducir un número entero del 1 al 5 o pulse enter para dejar vacío")
                 continue
             else:
                 return check_rate(rate)
@@ -548,19 +550,21 @@ def update_book(db = "personal", tabla = "books", row=None, question = None):
     elif question == 11:
        while True:
            try:
-            new_val = input(f"\nIntroduzca la puntuación que quiere asignar al libro (valores enteros del 1 al 5). Deje en blanco para ningún valor: \n")
+            new_val = input(f"Puntue el libro del 1 al 5 (pulse 'enter' para dejar vacío o 'q' para salir sin cambios): \n")
             new_val2 = check_rate(new_val)
-            if new_val2 == "Wrong input":
-                print("\nInvalid input. Por favor, inténtelo de nuevo. Recuerde introducir un número entero del 1 al 5\n")
+            if new_val.lower() == "q":
+                break
+            elif new_val2 == "Wrong input":
+                print("\nHas introducido un valor no permitido. Por favor, inténtelo de nuevo. \nRecuerde introducir un número entero del 1 al 5 o pulse enter para dejar vacío\n")
                 continue
+            
             else:
                 con.execute("UPDATE books SET rate = ? WHERE ROWID= ?", (new_val2, int(row)))
                 con.commit()
-                print(f"El puntuación del libro ha sido actualizado: {new_val2}")
-                break
-            
+                print(f"La puntuación del libro ha sido actualizado: {new_val2}")
+                break            
            except ValueError:
-                print("\nInvalid input. Por favor, inténtelo de nuevo. Recuerde introducir un número entero del 1 al 5\n")
+                print("\nHa habido un error\n")
                 break
 
     # NÚMERO DE VECES LEIDO
@@ -583,88 +587,7 @@ def update_book(db = "personal", tabla = "books", row=None, question = None):
 
 ### CHEQUEOS FORMATO
 
-# Isbn
-def check_isbn(col = None):
-     while True:
-        if col == '' or col is None:
-            return None  # Permite un valor nulo
-        try:
-            col = int(col)
-            if len(str(col)) == 13:    
-                return col
-            else:
-                 print("El ISBN debe ser un número de 13 dígitos.")
-                 break                 
-        except ValueError:
-            print("El ISBN debe ser un número de 13 dígitos.")
-            break
 
-# String (title, authors, description, gender, preview_link, image_lin)
-def check_string(col = None):
-    while True:
-        if col == "" or col is None:
-            return None
-        try:
-            col = str(col)
-            return col
-        except ValueError:
-            print("Debe ser una cadena de texto")
-            break
-
-# Integer (page_count, times_readed)
-def check_integer(col = None):
-    while True:
-        if col == '' or col is None:
-           return None  # Permite un valor nulo 
-        try:
-            col = int(col)
-            return col
-        except ValueError:
-            print("Solo se permite introducir números")
-            col = input("Por favor, introduzca un número: ")
-
-# Format
-def check_format(col = None):
-    while True:
-        if col == '' or col is None:
-            return None  # Permite un valor nulo
-        try:
-            col = int(col)
-            if col in (1,2):    
-                return col 
-            else:
-                break            
-        except ValueError:
-            print("Debe ser un número 1 o 2")
-            col = input("Por favor, introduzca un número: ")   
-
-# Date
-def check_date(col=None):
-    # Solo valida el formato; no pide más entradas
-    if col == '' or col is None:
-        return None  # Permite un valor nulo
-    elif len(col) == 4:
-        col2 = f"{col}-01-01"
-    else:
-        col2 = col
-    try:
-        col2 = datetime.strptime(col2, '%Y-%m-%d').date()
-        return col2
-    except ValueError:
-        return None  # Devuelve None si no es un número
-    
-def check_rate(col=None):
-    if col == '' or col is None:
-        return None
-    try:
-        col = int(col)
-        if col in (1, 2, 3, 4, 5):
-            return col  # Return valid rating
-        else:
-            col = "Wrong input"
-            return col
-    except ValueError:
-        return None
             
 
 

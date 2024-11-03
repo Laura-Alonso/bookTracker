@@ -2,43 +2,53 @@ from datetime import datetime
 
 # Isbn
 def check_isbn(col = None):
-     while True:
-        if col == '' or col is None:
-            return None  # Permite un valor nulo
-        try:
-            col = int(col)
-            if len(str(col)) == 13:    
-                return col
-            else:
-                 print("El ISBN debe ser un número de 13 dígitos.")
-                 break                 
-        except ValueError:
-            print("El ISBN debe ser un número de 13 dígitos.")
-            break
+    if col == '' or col is None:
+       return None  
+    try:
+        col = int(col)
+        if len(str(col)) == 13:    
+            return col
+        else:
+            col = "Wrong input"
+            return col                
+    except ValueError:
+        return None
 
+# Date
+def check_date(col=None):
+    if col == '' or col is None:
+        return None 
+    elif len(col) == 4:
+        col2 = f"{col}-01-01"
+    else:
+        col2 = col
+    try:
+        col2 = datetime.strptime(col2, '%Y-%m-%d').date()
+        return col2
+    except ValueError:
+        return "Wrong input" 
+    
 # String (title, authors, description, gender, preview_link, image_lin)
 def check_string(col = None):
-    while True:
-        if col == "" or col is None:
-            return None
-        try:
-            col = str(col)
-            return col
-        except ValueError:
-            print("Debe ser una cadena de texto")
-            break
+    if col == "" or col is None:
+        return None
+    try:
+        if col == str(col):
+            return str(col)
+        else:
+            return "Wrong input" 
+    except ValueError:
+         return None
 
 # Integer (page_count, times_readed)
 def check_integer(col = None):
-    while True:
-        if col == '' or col is None:
-           return None  # Permite un valor nulo 
-        try:
-            col = int(col)
-            return col
-        except ValueError:
-            print("Solo se permite introducir números")
-            col = input("Por favor, introduzca un número: ")
+    if col == '' or col is None:
+        return None  # Permite un valor nulo 
+    try:
+        col = int(col)
+        return col
+    except ValueError:
+        return "Wrong input" 
 
 # Format
 def check_format(col = None):
@@ -55,20 +65,7 @@ def check_format(col = None):
             print("Debe ser un número 1 o 2")
             col = input("Por favor, introduzca un número: ")   
 
-# Date
-def check_date(col=None):
-    # Solo valida el formato; no pide más entradas
-    if col == '' or col is None:
-        return None  # Permite un valor nulo
-    elif len(col) == 4:
-        col2 = f"{col}-01-01"
-    else:
-        col2 = col
-    try:
-        col2 = datetime.strptime(col2, '%Y-%m-%d').date()
-        return col2
-    except ValueError:
-        return None  # Devuelve None si no es un número
+ 
 
 # Rate    
 def check_rate(col=None):
