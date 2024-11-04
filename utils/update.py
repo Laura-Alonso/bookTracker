@@ -170,7 +170,6 @@ def udpate_book_language(db="personal", table ="books", row = None):
              
              if new_val.lower() == "q":
                    break
-             
              elif new_val == '':
                 final_value = None
                 con.execute("UPDATE books SET language = ? WHERE ROWID= ?", (final_value, int(row)))
@@ -201,7 +200,9 @@ def udpate_book_language(db="personal", table ="books", row = None):
                     except ValueError:
                        print("\nHa habido un error\n")
                        break
-             break
+                 break
+             else:
+                 print("Entrada no válida. Por favor, inténtelo de nuevo.")
         
            except ValueError:
              print("\nHa habido un error\n")

@@ -1,5 +1,7 @@
 from utils.update import * 
-
+from utils.check import * 
+from utils.get_information import * 
+import sqlite3
 
 # Update book data
 def update_book(db = "personal", tabla = "books", row=None, question = None):
@@ -91,7 +93,7 @@ def update_book(db = "personal", tabla = "books", row=None, question = None):
 
     # Times readed
     elif question == 12:
-        udpate_book_rate(row=row)
+        udpate_book_times_readed(row=row)
 
     # Others
     else:
@@ -99,3 +101,29 @@ def update_book(db = "personal", tabla = "books", row=None, question = None):
 
 # Close conexion with bd
     con.close() 
+
+
+
+# Save extra information 
+def save_book_to_db(book_data, db_name='personal.db'):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+    print("\nBook succesfully added\n")
+    read_date = get_read_date()
+    rate = get_rate()
+    times_readed = get_times_readed()
+    formate = get_book_format()
+
+    cursor.execute('''
+        INSERT OR IGNORE INTO books 
+        (isbn, title, authors, description, published_date, page_count, formato, language, genders, preview_link, image_links, read_date, rate, times_readed)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (
+        book_data['isbn'], book_data['title'], book_data['authors'], book_data['description'], 
+        book_data['published_date'],  book_data['page_count'], formate, book_data['language'], book_data['genders'], 
+        book_data['preview_link'], book_data['image_links'], read_date, rate, times_readed
+    ))
+    
+    conn.commit()
+    conn.close()
+    

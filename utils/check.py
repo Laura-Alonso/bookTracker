@@ -78,4 +78,4 @@ def check_rate(col=None):
             col = "Wrong input"
             return col
     except ValueError:
-        return None
+        return "Wrong input"

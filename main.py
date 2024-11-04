@@ -10,34 +10,10 @@ from utils.fetch_book import *
 from utils.update import *
 from utils.get_information import *
 from utils.principal_functions import *
+from utils.data_base import *
 
 
-# Set up the SQLite database
-def setup_database(db_name='personal.db'):
-    conn = sqlite3.connect(db_name)  # Establishes a connection to the SQLite database "personal" or create it.
-    cursor = conn.cursor()           # Create a cursor object used to execute SQL comands
-    
-    # Create a table to store book details   # Create SQL comand. Names are columns names.
-    cursor.execute('''                        
-        CREATE TABLE IF NOT EXISTS books (
-            isbn INTEGER,
-            title TEXT,
-            authors TEXT,
-            description TEXT,
-            published_date DATE,
-            page_count INTEGER,
-            formato TEXT,
-            language TEXT,
-            genders TEXT,
-            preview_link TEXT,
-            image_links TEXT,
-            read_date DATE,
-            rate INTEGER,
-            times_readed INTEGER         
-        )
-    ''')
-    conn.commit()  # Save the changes in the database
-    conn.close()   # Close the conection with the data_base
+
 
 
 
@@ -59,27 +35,6 @@ def show_books_api(books):
             print('-' * 40)
     else:
         print(books)
-
-# Step 3: Function to save book data to the database
-def save_book_to_db(book, read_date, rate, times_readed, formate, db_name='personal.db'):
-    conn = sqlite3.connect(db_name)
-    cursor = conn.cursor()
-    print("Book succesfully added")
-    
-    # Insert book data into the database
-    cursor.execute('''
-        INSERT OR IGNORE INTO books 
-        (isbn, title, authors, description, published_date, page_count, formato, language, genders, preview_link, image_links, read_date, rate, times_readed)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (
-        book['isbn'], book['title'], book['authors'], book['description'], 
-        book['published_date'],  book['page_count'], formate, book['language'], book['genders'], 
-        book['preview_link'], book['image_links'], read_date, rate, times_readed
-    ))
-    
-    conn.commit()
-    conn.close()
-
 
 
 
@@ -243,17 +198,8 @@ def main():
                     print("Libro encontrado:")
                     show_books_api(books)
                     seleccion = int(input("Ingrese 1 si es el libro que buscan 0 si no es el libro correcto: ")) - 1
-                    if 0 <= seleccion < len(books):
-                        # Ask user when they read the book
-                        read_date = get_read_date()
-                        # Rating the book
-                        rate = get_rate()
-                        # Number of times readed
-                        times_readed = get_times_readed()
-                        # Type of book
-                        book_type = get_book_format()
-                        
-                        save_book_to_db(books[seleccion], read_date, rate, times_readed, book_type)
+                    if 0 <= seleccion < len(books):                       
+                        save_book_to_db(books[seleccion])
                     else:
                         print("Selección inválida.")
                 else:
@@ -268,17 +214,8 @@ def main():
                     print("Libros encontrados:")
                     show_books_api(books)
                     seleccion = int(input("Ingrese el número del libro que desea añadir a la base de datos: ")) - 1
-                    if 0 <= seleccion < len(books):
-                        # Ask user when they read the book
-                        read_date = get_read_date()
-                        # Rating the book
-                        rate = get_rate()
-                        # Number of times readed
-                        times_readed = get_times_readed()
-                        # Type of book
-                        book_type = get_book_format()
-                        
-                        save_book_to_db(books[seleccion], read_date, rate, times_readed, book_type)
+                    if 0 <= seleccion < len(books):                       
+                        save_book_to_db(books[seleccion])
                     else:
                         print("Selección inválida.")
                 else:
@@ -308,17 +245,8 @@ def main():
                                 print("Libros encontrados:")
                                 show_books_api(books_author)
                                 seleccion = int(input("Ingrese el número del libro que desea añadir a la base de datos: ")) - 1
-                                if 0 <= seleccion < len(books_author):
-                                    # Ask user when they read the book
-                                    read_date = get_read_date()
-                                    # Rating the book
-                                    rate = get_rate()
-                                    # Number of times readed
-                                    times_readed = get_times_readed()
-                                    # Type of book
-                                    book_type = get_book_format()
-                                    
-                                    save_book_to_db(books_author[seleccion], read_date, rate, times_readed, book_type)
+                                if 0 <= seleccion < len(books_author):                                   
+                                    save_book_to_db(books_author[seleccion])
                                 else:
                                     print("Selección inválida.")
                             else:
